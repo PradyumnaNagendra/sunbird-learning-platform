@@ -30,6 +30,7 @@ import org.ekstep.content.common.ExtractionType;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.content.publisher.CollectionPublisher;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.GraphUtil;
@@ -130,6 +131,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			? Platform.config.getInt("content.cache.ttl")
 			: 259200;
 	private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
+	private CollectionPublisher collectionPublisher = null;
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -151,6 +153,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
 		this.basePath = basePath;
 		this.contentId = contentId;
+		collectionPublisher =  new CollectionPublisher(basePath, contentId);
 	}
 
 	/**
@@ -179,6 +182,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		if(StringUtils.isNotBlank(mimeType) && COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
+			return collectionPublisher.publish(parameterMap);
+		}
+
 		RedisStoreUtil.delete(contentId);
 		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {

@@ -55,7 +55,7 @@ public class BaseFinalizer extends BasePipeline {
 	/** The logger. */
 
 	/** The Constant IDX_S3_URL. */
-	private static final int IDX_S3_URL = 1;
+	protected static final int IDX_S3_URL = 1;
 
 	protected static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 
