@@ -65,6 +65,7 @@ public class FrameworkHierarchy extends BaseManager {
 			frameworkDocument.putAll(frameworkHierarchy);
 			frameworkDocument.put("identifier", node.getIdentifier());
 			frameworkDocument.put("objectType", node.getObjectType());
+			frameworkDocument.put("channel", node.getMetadata().getOrDefault("channel",""));
 			DefinitionDTO definition = getDefinition(GRAPH_ID, node.getObjectType());
 			String[] fields = getFields(definition);
 			for (String field : fields) {
@@ -72,6 +73,7 @@ public class FrameworkHierarchy extends BaseManager {
 					frameworkDocument.put(field, node.getMetadata().get(field));
 			}
 			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
+			FrameworkCache.save(frameworkDocument, null);
 		} else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);
 		}

@@ -49,16 +49,22 @@ public class FrameworkCache {
 
 
     public static void save(Map<String, Object> framework, List<String> categoryNames) throws JsonProcessingException {
-        if(cacheEnabled && MapUtils.isNotEmpty(framework) && StringUtils.isNotBlank((String) framework.get("identifier")) && CollectionUtils.isNotEmpty(categoryNames)) {
-            Collections.sort(categoryNames);
-            String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
-            RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);
+        if(cacheEnabled && MapUtils.isNotEmpty(framework) && StringUtils.isNotBlank((String) framework.get("identifier"))) {
+            if(CollectionUtils.isNotEmpty(categoryNames)) {
+                Collections.sort(categoryNames);
+                String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
+                RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);
+            } else {
+                RedisStoreUtil.save((String) framework.get("identifier"), mapper.writeValueAsString(framework), 0);
+            }
         }
     }
 
     public static void delete(String id) {
-        if(StringUtils.isNotBlank(id))
+        if(StringUtils.isNotBlank(id)) {
             RedisStoreUtil.deleteByPattern(CACHE_PREFIX + id + "_*");
+            RedisStoreUtil.delete(id);
+        }
     }
 
 }
