@@ -222,3 +222,45 @@ questionset-publish:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+collection-complete-post-processor:
+ collection-complete-post-processor: |+
+   include file("/data/flink/conf/base-config.conf")
+   kafka {
+     input.topic = {{ env_name }}.issue.certificate.request
+     groupId = {{ env_name }}-collection-complete-post-processor-group
+     output.topic = {{ env_name }}.generate.certificate.request
+     output.failed.topic = {{ env_name }}.certificate.events.failed
+   }
+   task {
+     consumer.parallelism = {{ collection_complete_post_processor_consumer_parallelism }}
+     parallelism = {{ collection_complete_post_processor_parallelism }}
+   }
+   lms-cassandra {
+     keyspace = "{{ middleware_course_keyspace }}"
+     batchTable = "course_batch"
+     userTable = "user_enrolments"
+     assessmentAggregatorTable = "assessment_aggregator"
+   }
+   content {
+     search {
+       basePath = "{{ kp_search_service_base_url }}"
+     }
+     basePath = "{{ kp_content_service_base_url }}"
+   }
+   lms {
+     basePath = "{{ lms_service_base_url }}"
+   }
+   cert {
+     basePath = "{{ certificate_base_path }}"
+   }
+   learner-service {
+     basePath = "{{ learner_service_base_url }}"
+   }
+
+ flink-conf: |+
+   jobmanager.memory.flink.size: {{ flink_job_names['collection-complete-post-processor'].jobmanager_memory }}
+   taskmanager.memory.flink.size: {{ flink_job_names['collection-complete-post-processor'].taskmanager_memory }}
+   taskmanager.numberOfTaskSlots: {{ flink_job_names['collection-complete-post-processor'].taskslots }}
+   parallelism.default: 1
+   jobmanager.execution.failover-strategy: region
+   taskmanager.memory.network.fraction: 0.1
