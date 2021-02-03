@@ -395,7 +395,7 @@ public class CertificateGenerator {
     private String prepareUserSearchRequest(String userId) throws Exception {
         Request request = new Request();
         request.put("filters", new HashMap<String, Object>(){{
-            put("identifier", userId);
+            put("identifier", "a817e746-36a6-4e05-b2ad-84f22769780e");
         }});
         request.put("fields", Arrays.asList("firstName", "lastName", "userName", "rootOrgName", "rootOrgId","maskedPhone"));
         return mapper.writeValueAsString(request);
@@ -454,11 +454,11 @@ public class CertificateGenerator {
         try{
             String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/org/read";
             Request request = new Request();
-            request.put("organisationId", orgId);
+            request.put("organisationId", "0126796199493140480");
             HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
-                Map<String, Object> keys = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("response")).get("keys");
+                Map<String, Object> keys = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("response")).getOrDefault("keys", new HashMap<>());
                 if(MapUtils.isNotEmpty(keys) && (CollectionUtils.isNotEmpty((List<String>) keys.get("signKeys")))) {
                     Map<String, Object> signKeys = new HashMap<String, Object>(){{
                        put("id", ((List<String>)keys.get("signKeys")).get(0)) ;
@@ -470,7 +470,7 @@ public class CertificateGenerator {
         } catch(Exception e){
             LOGGER.error("Error while reading organisation : " + orgId, e);
         }
-        return null;
+        return new HashMap<>();
 
     }
 
