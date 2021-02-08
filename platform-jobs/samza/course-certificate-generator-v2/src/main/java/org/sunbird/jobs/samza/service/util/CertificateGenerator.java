@@ -51,7 +51,8 @@ public class CertificateGenerator {
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
-    private static final String USER_COURSES_TABLE = "user_enrolments";
+    private static final String USER_COURSES_TABLE = Platform.config.hasPath("user_enrolments.table.name")
+            ? Platform.config.getString("user_enrolments.table.name"): "user_enrolments";
     private SimpleDateFormat formatter = null;
     private SimpleDateFormat dateFormatter = null;
     private static final String CERTIFICATE_BASE_PATH = Platform.config.hasPath("certificate.base_path")

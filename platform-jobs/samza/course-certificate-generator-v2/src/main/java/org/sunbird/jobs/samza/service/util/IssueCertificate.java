@@ -41,8 +41,10 @@ public class IssueCertificate {
     private static final String LEARNER_SERVICE_PRIVATE_URL = Platform.config.hasPath("learner_service.base_url")
             ? Platform.config.getString("learner_service.base_url"): "http://localhost:9000";
     private static final String COURSE_BATCH_TABLE = "course_batch";
-    private static final String USER_COURSES_TABLE = "user_enrolments";
-    private static final String ASSESSMENT_AGGREGATOR_TABLE = "assessment_aggregator";
+    private static final String USER_COURSES_TABLE = Platform.config.hasPath("user_enrolments.table.name")
+            ? Platform.config.getString("user_enrolments.table.name"): "user_enrolments";
+    private static final String ASSESSMENT_AGGREGATOR_TABLE = Platform.config.hasPath("assessments.table.name")
+            ? Platform.config.getString("assessments.table.name"): "assessment_aggregator";
     protected static ObjectMapper mapper = new ObjectMapper();
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
