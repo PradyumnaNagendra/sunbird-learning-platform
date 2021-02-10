@@ -27,6 +27,7 @@ import org.sunbird.jobs.samza.util.RedisConnect;
 import redis.clients.jedis.Jedis;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CertificateGeneratorService implements ISamzaService {
 
@@ -40,10 +41,20 @@ public class CertificateGeneratorService implements ISamzaService {
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
     private SystemStream certificateAuditEventStream = null;
+    private AtomicInteger courseBatchCounter;
+    private AtomicInteger enrolmentCounter;
+    private AtomicInteger assessmentCounter;
     /**
      * @param config
      * @throws Exception
      */
+    
+    private void setDBCounters(AtomicInteger courseBatchCounter, AtomicInteger enrolmentCounter, AtomicInteger assessmentCounter) {
+        this.courseBatchCounter = courseBatchCounter;
+        this.enrolmentCounter = enrolmentCounter;
+        this.assessmentCounter = assessmentCounter;
+    }
+    
     @Override
     public void initialize(Config config) throws Exception {
         this.config = config;
@@ -55,7 +66,7 @@ public class CertificateGeneratorService implements ISamzaService {
         certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
         certificateAuditEventStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
         certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession, certificateAuditEventStream);
-        issueCertificate = new IssueCertificate(cassandraSession);
+        issueCertificate = new IssueCertificate(cassandraSession, courseBatchCounter, enrolmentCounter, assessmentCounter);
     }
 
     /**

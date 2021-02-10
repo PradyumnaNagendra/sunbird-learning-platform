@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,9 +55,15 @@ public class IssueCertificate {
     private static final List<String> certFilterKeys = Arrays.asList("enrollment", "assessment", "user");
     private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
     private Session cassandraSession = null;
+    private AtomicInteger courseBatchCounter;
+    private AtomicInteger enrolmentCounter;
+    private AtomicInteger assessmentCounter;
     
-    public IssueCertificate(Session cassandraSession) {
+    public IssueCertificate(Session cassandraSession, AtomicInteger courseBatchCounter, AtomicInteger enrolmentCounter, AtomicInteger assessmentCounter) {
         this.cassandraSession = cassandraSession;
+        this.courseBatchCounter = courseBatchCounter;
+        this.enrolmentCounter = enrolmentCounter;
+        this.assessmentCounter = assessmentCounter;
     }
 
     public void issue(Map<String, Object> edata, MessageCollector collector) throws Exception {
@@ -89,6 +96,7 @@ public class IssueCertificate {
         }};
         ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, COURSE_BATCH_TABLE, dataToFetch);
         Row row = resultSet.one();
+        courseBatchCounter.incrementAndGet();
         return row.getMap("cert_templates", TypeToken.of(String.class), TypeTokens.mapOf(String.class, String.class));
     }
 
@@ -238,6 +246,7 @@ public class IssueCertificate {
                 "GROUP BY user_id,course_id,batch_id,content_id");
         ResultSet resultSet = cassandraSession.execute(statement.bind(courseId, batchId, userIds));
         Iterator<Row> rows = resultSet.iterator();
+        assessmentCounter.incrementAndGet();
         Map<String, Map<String, Double>> userScore = new HashMap<>();
         while(rows.hasNext()) {
             Row row = rows.next();
@@ -274,6 +283,7 @@ public class IssueCertificate {
                 LOGGER.info("IssueCertificate:getUserFromEnrolmentCriteria: userIds " + userIds);
                 ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
                 Iterator<Row> rowIterator = resultSet.iterator();
+                enrolmentCounter.incrementAndGet();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
                     //TODO: Added code for validating issued_certificates and certificates with respect to template url. 

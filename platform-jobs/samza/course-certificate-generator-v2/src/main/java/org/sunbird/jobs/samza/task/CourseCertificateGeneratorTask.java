@@ -3,6 +3,8 @@ package org.sunbird.jobs.samza.task;
  * @author Pradyumna
  */
 
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
@@ -11,12 +13,16 @@ import org.sunbird.jobs.samza.service.CertificateGeneratorService;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CourseCertificateGeneratorTask extends BaseTask {
 
     private static JobLogger LOGGER = new JobLogger(CourseCertificateGeneratorTask.class);
     private ISamzaService service = new CertificateGeneratorService();
-
+    private AtomicInteger courseBatchCounter = new AtomicInteger(0);
+    private AtomicInteger enrolmentCounter = new AtomicInteger(0);
+    private AtomicInteger assessmentCounter = new AtomicInteger(0);
+    
     @Override
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
@@ -37,5 +43,11 @@ public class CourseCertificateGeneratorTask extends BaseTask {
             metrics.incErrorCounter();
             LOGGER.error("Message processing failed", message, e);
         }
+    }
+    
+    @Override
+    public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
+        super.window(collector, coordinator);
+        System.out.println("CourseBatch counter: " + courseBatchCounter.get() + "\t Enrolments counter : " + enrolmentCounter.get()  + "\t assessment counter : " + assessmentCounter.get());
     }
 }
