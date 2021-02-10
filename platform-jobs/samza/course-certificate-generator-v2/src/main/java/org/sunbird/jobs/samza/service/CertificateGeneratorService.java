@@ -44,17 +44,18 @@ public class CertificateGeneratorService implements ISamzaService {
     private AtomicInteger courseBatchCounter;
     private AtomicInteger enrolmentCounter;
     private AtomicInteger assessmentCounter;
-    /**
-     * @param config
-     * @throws Exception
-     */
+   
     
-    private void setDBCounters(AtomicInteger courseBatchCounter, AtomicInteger enrolmentCounter, AtomicInteger assessmentCounter) {
+    public CertificateGeneratorService(AtomicInteger courseBatchCounter, AtomicInteger enrolmentCounter, AtomicInteger assessmentCounter) {
         this.courseBatchCounter = courseBatchCounter;
         this.enrolmentCounter = enrolmentCounter;
         this.assessmentCounter = assessmentCounter;
     }
     
+    /**
+     * @param config
+     * @throws Exception
+     */
     @Override
     public void initialize(Config config) throws Exception {
         this.config = config;

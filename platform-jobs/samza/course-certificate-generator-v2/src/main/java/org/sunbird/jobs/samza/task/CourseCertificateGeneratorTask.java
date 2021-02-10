@@ -18,10 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CourseCertificateGeneratorTask extends BaseTask {
 
     private static JobLogger LOGGER = new JobLogger(CourseCertificateGeneratorTask.class);
-    private ISamzaService service = new CertificateGeneratorService();
     private AtomicInteger courseBatchCounter = new AtomicInteger(0);
     private AtomicInteger enrolmentCounter = new AtomicInteger(0);
     private AtomicInteger assessmentCounter = new AtomicInteger(0);
+    private CertificateGeneratorService service;
+    
     
     @Override
     public ISamzaService initialize() throws Exception {
@@ -29,6 +30,7 @@ public class CourseCertificateGeneratorTask extends BaseTask {
         this.action = Arrays.asList("generate-course-certificate", "issue-certificate");
         this.jobStartMessage = "Started processing of course-certificate-generator samza job";
         this.jobEndMessage = "course-certificate-generator job processing complete";
+        this.service = new CertificateGeneratorService(this.courseBatchCounter, this.enrolmentCounter, this.assessmentCounter);
         this.jobClass = "org.sunbird.jobs.samza.task.CourseCertificateGeneratorTask";
         return service;
     }
