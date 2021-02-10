@@ -13,6 +13,7 @@ import org.sunbird.jobs.samza.service.util.IssueCertificate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({IssueCertificate.class})
@@ -24,7 +25,10 @@ public class IssueCertificateTest {
     public void testIssueCert() throws Exception {
         Config config = Mockito.mock(Config.class);
         Session session = Mockito.mock(Session.class);
-        IssueCertificate spy = PowerMockito.spy(new IssueCertificate(session));
+        AtomicInteger courseBatchCounter = new AtomicInteger(0);
+        AtomicInteger enrolmentCounter = new AtomicInteger(0);
+        AtomicInteger assessmentCounter = new AtomicInteger(0);
+        IssueCertificate spy = PowerMockito.spy(new IssueCertificate(session, courseBatchCounter, enrolmentCounter, assessmentCounter));
 
         Map<String, Object> request = new HashMap<>();
         request.put("action", "issue-certificate");
