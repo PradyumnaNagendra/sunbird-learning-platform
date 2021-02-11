@@ -166,7 +166,7 @@ public class CertificateGenerator {
             String courseName = (String) courseMetadata.get("name");
             if(MapUtils.isNotEmpty(certTemplate)) {
                 //Get Username from user get by Id.
-                Map<String, Object> userResponse = getUserDetails(userId); // call user Service
+                Map<String, Object> userResponse = getUserDetails("a817e746-36a6-4e05-b2ad-84f22769780e"); // call user Service
                 // Save certificate to user_courses table cassandra
                 if(MapUtils.isNotEmpty(userResponse)){
                     generateCertificate(certificates, courseId, courseName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue, collector);
@@ -215,9 +215,11 @@ public class CertificateGenerator {
                 pushAuditEvent(userId, courseId, batchId, certificate, collector);
 
                 if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
+                    Thread.sleep(50);
+                    /*
                     createUserFeed(userId, courseId, courseName, issuedOn);
                     if(certificateGenerateNotificationEnable)
-                	    notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
+                	    notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);*/
                 }
             } else {
                 LOGGER.info("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
@@ -351,13 +353,13 @@ public class CertificateGenerator {
 
     private Map<String,Object> getContent(String courseId, String fields) {
         try {
-            String courseData = redisConnect.get(courseId);
+            String courseData = redisConnect.get("do_31320684042286694411");
             Map<String, Object> content = new HashMap<>();
             if(StringUtils.isNotBlank(courseData)){
                 content = mapper.readValue(courseData, new TypeReference<Map<String, Object>>(){});    
             }
             if(MapUtils.isEmpty(content)) {
-                String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
+                String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + "do_31320684042286694411";//courseId;
                 if(StringUtils.isNotBlank(fields))
                     url += "?fields=" + fields;
 
